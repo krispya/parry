@@ -10,7 +10,7 @@ use num::Bounded;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 struct FaceId {
     id: usize,
     neg_dist: Real,
@@ -332,6 +332,7 @@ impl EPA {
             self.vertices.push(cso_point);
 
             let candidate_max_dist = cso_point.point.coords.dot(&face.normal);
+            println!("{}: {}", niter, candidate_max_dist);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -341,6 +342,7 @@ impl EPA {
             let curr_dist = -face_id.neg_dist;
 
             if max_dist - curr_dist < _eps_tol {
+                println!("{}: max_dist - curr_dist < _eps_tol", niter);
                 let best_face = &self.faces[best_face_id.id];
                 let points = best_face.closest_points(&self.vertices);
                 return Some((points.0, points.1, best_face.normal));
@@ -362,6 +364,8 @@ impl EPA {
                 // FIXME: Something went very wrong because we failed to extract a silhouette…
                 return None;
             }
+
+            // println!("{}: {} silhouette edges", niter, self.silhouette.len());
 
             for edge in &self.silhouette {
                 if !self.faces[edge.face_id].deleted {
